@@ -2,7 +2,7 @@ export PATH := $(GOPATH)/bin:$(PATH)
 export GO111MODULE=on
 LDFLAGS := -s -w
 
-all: fmt build
+all: fmt build -
 
 build: frps frpc
 
@@ -23,7 +23,7 @@ frps:
 	env CGO_ENABLED=0 go build -trimpath -ldflags "$(LDFLAGS)" -o bin/frps ./cmd/frps
 
 frpc:
-	env CGO_ENABLED=1 go build -trimpath -ldflags "$(LDFLAGS)" -o bin/frpc ./cmd/frpc
+	env CGO_ENABLED=1 CC=arm-linux-gnueabihf-gcc GOARCH=arm go build -trimpath -ldflags "$(LDFLAGS)" -o bin/frpc ./cmd/frpc
 
 test: gotest
 
