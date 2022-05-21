@@ -6,17 +6,8 @@ package client
 #include "SynReader.h"
 
 #cgo amd64 LDFLAGS: -L ./libx64  -lSynReader64 -lwlt -lusb-1.0
-#cgo arm LDFLAGS: -L ./libArm  -lSynReaderArm -lwlt -lusb-1.0
-int main1 ()
-{
+#cgo arm LDFLAGS: -L ./libArm  -lSynReaderArm -lwlt -lusb-1.0 
 
-#ifdef __x86_64__
-	printf("%d\n",__x86_64__  );
-#endif
-        printf("%d\n",__GNUC_MINOR__);
-        printf("%d\n",__GNUC_PATCHLEVEL__);
-
-}
 */
 import "C"
 
@@ -117,7 +108,11 @@ func Reader(w http.ResponseWriter, r *http.Request) {
 }
 
 func (svr *Service) RunReaderServer(address string) (err error) {
-	C.main1()
+	folderPath:="/oem/IDCard/"
+	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
+		os.Mkdir(folderPath,0777)
+	}
+
 	nReader = C.OpenUsbComm()
 	http.HandleFunc("/getIDcard", Reader)
 	go http.ListenAndServe(address, nil)
