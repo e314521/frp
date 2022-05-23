@@ -1,14 +1,11 @@
 #include "SynReader.h"
 #include <stdio.h>
 #include <string.h>
-int OpenUsbComm(){
-  return -1;
-}
 int ZKID_Init(){
   return 0;
 }
 int ZKID_OpenPort(int Port){
-  return -1;
+  return -2;
 }
 int ZKID_Free(){
   return 0;

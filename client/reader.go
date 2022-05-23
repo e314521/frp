@@ -5,7 +5,7 @@ package client
 #include <stdio.h>
 #include "SynReader.h"
 
-#cgo amd64 LDFLAGS: -L ./libx64  -lSynReader64 -lwlt -lusb-1.0
+#cgo amd64 LDFLAGS: -L ./libx64  -lSynReader64  -lwlt -lusb-1.0 
 #cgo arm LDFLAGS: -L ./libArm  -lSynReaderArm -lwlt -lusb-1.0 
 
 */
@@ -22,21 +22,18 @@ import (
 )
 
 type User struct {
-	CardType      string //I为外国人居住证，J 为港澳台居住证，空格(0x20)为普通身份证
-	Name          string //姓名
-	EngName       string //英文名(外国人居住证)
-	Sex           string //性别
-	Nation        string //民族或国籍(外国人居住证)
-	Birthday      string //出生日期
-	Address       string //住址
-	IDCardNo      string //身份证号或外国人居住证号(外国人居住证)
-	GrantDept     string //发证机关
-	UserLifeBegin string //有效开始日期
-	UserLifeEnd   string //有效截止日期
-	PassID        string //通行证号码(港澳台)
-	IssuesTimes   string //签发次数(港澳台)
-	CertVol       string //证件版本号(外国人居住证)
-	HeadImage     string //证件照
+	card_type      string //I为外国人居住证，J 为港澳台居住证，空格(0x20)为普通身份证
+	name          string //姓名
+	eng_name       string //英文名(外国人居住证)
+	sex           string //性别
+	nation        string //民族或国籍(外国人居住证)
+	birthday      string //出生日期
+	address       string //住址
+	id_card_no    string //身份证号或外国人居住证号(外国人居住证)
+	grant_dept     string //发证机关
+	user_life_begin string //有效开始日期
+	user_life_end   string //有效截止日期
+	head_image     string //证件照
 }
 
 var nReader C.int
@@ -47,7 +44,7 @@ func Reader(w http.ResponseWriter, r *http.Request) {
 	}
 	if nReader != 0 {
 		log.Info("OpenUsbComm %d", nReader)
-		w.Write([]byte(`{"success":false, "msg":"身份在阅读器未连接", "data":{}}`))
+		w.Write([]byte(`{"success":false, "msg":"身份证阅读器未连接", "data":{}}`))
 		return
 	}
 
@@ -92,9 +89,6 @@ func Reader(w http.ResponseWriter, r *http.Request) {
 		C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.GrantDept))),
 		C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.UserLifeBegin))),
 		C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.UserLifeEnd))),
-		C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.PassID))),
-		C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.IssuesTimes))),
-		C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.CertVol))),
 		headImage,
 	}
 	data, err := json.Marshal(&user)
@@ -108,22 +102,12 @@ func Reader(w http.ResponseWriter, r *http.Request) {
 }
 
 func (svr *Service) RunReaderServer(address string) (err error) {
-	folderPath:="/oem/IDCard/"
+	folderPath := "/oem/IDCard/"
 	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
-		os.Mkdir(folderPath,0777)
+		os.Mkdir(folderPath, 0777)
 	}
-
 	nReader = C.OpenUsbComm()
 	http.HandleFunc("/getIDcard", Reader)
 	go http.ListenAndServe(address, nil)
-	return
-
-	var nRet C.int
-	nRet = C.OpenUsbComm()
-	if nRet != 0 {
-		log.Info("OpenUsbComm %d", nRet)
-	}
-
-	log.Info("admin server listen on %d", nRet)
 	return
 }
