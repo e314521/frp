@@ -19,29 +19,29 @@ import (
 	"net/http"
 	"os"
 	"unsafe"
+	"sync"
 )
-
+var mu  sync.RWMutex
 type User struct {
-	card_type      string //I为外国人居住证，J 为港澳台居住证，空格(0x20)为普通身份证
-	name          string //姓名
-	eng_name       string //英文名(外国人居住证)
-	sex           string //性别
-	nation        string //民族或国籍(外国人居住证)
-	birthday      string //出生日期
-	address       string //住址
-	id_card_no    string //身份证号或外国人居住证号(外国人居住证)
-	grant_dept     string //发证机关
-	user_life_begin string //有效开始日期
-	user_life_end   string //有效截止日期
-	head_image     string //证件照
+	CardType      string `json:"card_type"`//I为外国人居住证，J 为港澳台居住证，空格(0x20)为普通身份证
+	Name          string `json:"name"`//姓名
+	EngName       string `json:"eng_name"`//英文名(外国人居住证)
+	Sex           string `json:"sex"`//性别
+	Nation        string `json:"nation"`//民族或国籍(外国人居住证)
+	Birthday      string `json:"birthday"`//出生日期
+	Address       string `json:"address"`//住址
+	IDCardNo      string `json:"id_card_no"`//身份证号或外国人居住证号(外国人居住证)
+	GrantDept     string `json:"grant_dept"`//发证机关
+	UserLifeBegin string `json:"user_life_begin"`//有效开始日期
+	UserLifeEnd   string `json:"user_life_end"`//有效截止日期
+	HeadImage     string `json:"head_image"`//证件照
 }
 
-var nReader C.int
-
 func Reader(w http.ResponseWriter, r *http.Request) {
-	if nReader != 0 {
-		nReader = C.OpenUsbComm()
-	}
+	mu.Lock()
+	defer mu.Unlock()
+	nReader := C.OpenUsbComm()
+	defer C.CloseComm()
 	if nReader != 0 {
 		log.Info("OpenUsbComm %d", nReader)
 		w.Write([]byte(`{"success":false, "msg":"身份证阅读器未连接", "data":{}}`))
@@ -106,7 +106,6 @@ func (svr *Service) RunReaderServer(address string) (err error) {
 	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
 		os.Mkdir(folderPath, 0777)
 	}
-	nReader = C.OpenUsbComm()
 	http.HandleFunc("/getIDcard", Reader)
 	go http.ListenAndServe(address, nil)
 	return
