@@ -157,6 +157,10 @@ type ClientCommonConf struct {
 	// Enable golang pprof handlers in admin listener.
 	// Admin port must be set first.
 	PprofEnable bool `ini:"pprof_enable" json:"pprof_enable"`
+	ReaderAddr string `ini:"reader_addr" json:"reader_addr"`
+	ReaderPort int `ini:"reader_port" json:"reader_port"`
+	RealNameAddr string `ini:"real_name_addr" json:"real_name_addr"`
+	RealNamePort int `ini:"real_name_port" json:"real_name_port"`
 }
 
 // GetDefaultClientConf returns a client configuration with default values.

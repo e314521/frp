@@ -145,12 +145,28 @@ func (svr *Service) Run() error {
 	}
 
 	go svr.keepControllerWorking()
+	if svr.cfg.ReaderPort != 0 {
+		address := net.JoinHostPort(svr.cfg.ReaderAddr, strconv.Itoa(svr.cfg.ReaderPort))
+		err := svr.RunReaderServer(address)
+		if err != nil {
+			log.Warn("run reader server error: %v", err)
+		}
+		log.Info("reader server listen on %s:%d", svr.cfg.ReaderAddr, svr.cfg.ReaderPort)
+	}
+	if svr.cfg.RealNamePort != 0 {
+		address := net.JoinHostPort(svr.cfg.RealNameAddr, strconv.Itoa(svr.cfg.RealNamePort))
+		err := svr.RunRealNameServer(address)
+		if err != nil {
+			log.Warn("run reader server error: %v", err)
+		}
+		log.Info("reader server listen on %s:%d", svr.cfg.RealNameAddr, svr.cfg.RealNamePort)
+	}
+
 	if svr.cfg.AdminPort != 0 {
 		// Init admin server assets
 		assets.Load(svr.cfg.AssetsDir)
-
 		address := net.JoinHostPort(svr.cfg.AdminAddr, strconv.Itoa(svr.cfg.AdminPort))
-		err := svr.RunReaderServer(address)
+		err := svr.RunAdminServer(address)
 		if err != nil {
 			log.Warn("run admin server error: %v", err)
 		}
