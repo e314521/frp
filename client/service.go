@@ -159,7 +159,7 @@ func (svr *Service) Run() error {
 		if err != nil {
 			log.Warn("run reader server error: %v", err)
 		}
-		log.Info("reader server listen on %s:%d", svr.cfg.RealNameAddr, svr.cfg.RealNamePort)
+		log.Info("real-name server listen on %s:%d", svr.cfg.RealNameAddr, svr.cfg.RealNamePort)
 	}
 
 	if svr.cfg.AdminPort != 0 {
