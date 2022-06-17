@@ -22,3 +22,4 @@ git push origin master
 arm-linux-gnueabihf-gcc -fPIC -shared SynReader.c -o libzkident.so
 
 grep -rn "hello,world!" *
+scp ./bin/frpc root@192.168.101.220:/oem/

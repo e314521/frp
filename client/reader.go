@@ -5,8 +5,8 @@ package client
 #include <stdio.h>
 #include "SynReader.h"
 
-#cgo amd64 LDFLAGS: -L ./libx64  -lSynReader64  -lwlt -lusb-1.0 
-#cgo arm LDFLAGS: -L ./libArm  -lSynReaderArm -lwlt -lusb-1.0 
+#cgo amd64 LDFLAGS: -L ./libx64  -lSynReader64  -lwlt -lusb-1.0
+#cgo arm LDFLAGS: -L ./libArm  -lSynReaderArm -lwlt -lusb-1.0
 
 */
 import "C"
@@ -18,23 +18,25 @@ import (
 	"github.com/fatedier/frp/pkg/util/log"
 	"net/http"
 	"os"
-	"unsafe"
 	"sync"
+	"unsafe"
 )
-var mu  sync.RWMutex
+
+var mu sync.RWMutex
+
 type User struct {
-	CardType      string `json:"card_type"`//I为外国人居住证，J 为港澳台居住证，空格(0x20)为普通身份证
-	Name          string `json:"name"`//姓名
-	EngName       string `json:"eng_name"`//英文名(外国人居住证)
-	Sex           string `json:"sex"`//性别
-	Nation        string `json:"nation"`//民族或国籍(外国人居住证)
-	Birthday      string `json:"birthday"`//出生日期
-	Address       string `json:"address"`//住址
-	IDCardNo      string `json:"id_card_no"`//身份证号或外国人居住证号(外国人居住证)
-	GrantDept     string `json:"grant_dept"`//发证机关
-	UserLifeBegin string `json:"user_life_begin"`//有效开始日期
-	UserLifeEnd   string `json:"user_life_end"`//有效截止日期
-	HeadImage     string `json:"head_image"`//证件照
+	CardType      string `json:"card_type"`       //I为外国人居住证，J 为港澳台居住证，空格(0x20)为普通身份证
+	Name          string `json:"name"`            //姓名
+	EngName       string `json:"eng_name"`        //英文名(外国人居住证)
+	Sex           string `json:"sex"`             //性别
+	Nation        string `json:"nation"`          //民族或国籍(外国人居住证)
+	Birthday      string `json:"birthday"`        //出生日期
+	Address       string `json:"address"`         //住址
+	IDCardNo      string `json:"id_card_no"`      //身份证号或外国人居住证号(外国人居住证)
+	GrantDept     string `json:"grant_dept"`      //发证机关
+	UserLifeBegin string `json:"user_life_begin"` //有效开始日期
+	UserLifeEnd   string `json:"user_life_end"`   //有效截止日期
+	HeadImage     string `json:"head_image"`      //证件照
 }
 
 func Reader(w http.ResponseWriter, r *http.Request) {
