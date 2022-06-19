@@ -28,4 +28,7 @@ scp ./serve.pem root@192.168.101.220:/oem/
 scp ./serve.key root@192.168.101.220:/oem/
 
 ./mkcert -cert-file serve.pem -key-file serve.key -p12-file serve.p12 e314521.xyz *.e314521.xyz 192.168.101.220
+
+./mkcert -client -cert-file client-csr.pem -key-file client-key.pem
+
 ./mkcert -install
