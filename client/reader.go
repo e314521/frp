@@ -20,6 +20,8 @@ import (
 	"os"
 	"sync"
 	"unsafe"
+	"net/http/httputil"
+	"net/url"
 )
 
 var mu sync.RWMutex
@@ -40,6 +42,10 @@ type User struct {
 }
 
 func Reader(w http.ResponseWriter, r *http.Request) {
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
 	mu.Lock()
 	defer mu.Unlock()
 	nReader := C.OpenUsbComm()
@@ -103,11 +109,33 @@ func Reader(w http.ResponseWriter, r *http.Request) {
 
 }
 
+func Reverse(w http.ResponseWriter, r *http.Request) {
+	if r.RequestURI == "/favicon.ico" {
+        	//io.WriteString(w, "Request path Error")
+        	return
+    	}
+	remote, err := url.Parse("http://139.170.150.17:8080" )
+	if err != nil {
+		panic(err)
+		return
+	}
+	proxy := httputil.NewSingleHostReverseProxy(remote)
+	w.Header().Set("Access-Control-Allow-Headers", "*")
+	w.Header().Set("Access-Control-Allow-Methods", "*")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	proxy.ServeHTTP(w, r)
+	w.Header().Add("Access-Control-Allow-Methods1", "*")
+}
+
 func (svr *Service) RunReaderServer(address string) (err error) {
+	
+
 	folderPath := "/oem/IDCard/"
 	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
 		os.Mkdir(folderPath, 0777)
 	}
+	http.HandleFunc("/", Reverse)
 	http.HandleFunc("/getIDcard", Reader)
 	go http.ListenAndServe(address, nil)
 	return
