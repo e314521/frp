@@ -153,14 +153,6 @@ func (svr *Service) Run() error {
 		}
 		log.Info("reader server listen on %s:%d", svr.cfg.ReaderAddr, svr.cfg.ReaderPort)
 	}
-	if svr.cfg.RealNamePort != 0 {
-		address := net.JoinHostPort(svr.cfg.RealNameAddr, strconv.Itoa(svr.cfg.RealNamePort))
-		err := svr.RunRealNameServer(address)
-		if err != nil {
-			log.Warn("run reader server error: %v", err)
-		}
-		log.Info("real-name server listen on %s:%d", svr.cfg.RealNameAddr, svr.cfg.RealNamePort)
-	}
 
 	if svr.cfg.AdminPort != 0 {
 		// Init admin server assets

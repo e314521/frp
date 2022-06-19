@@ -120,10 +120,10 @@ func Reverse(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	proxy := httputil.NewSingleHostReverseProxy(remote)
-	w.Header().Set("Access-Control-Allow-Headers", "*")
-	w.Header().Set("Access-Control-Allow-Methods", "*")
-	w.Header().Set("Access-Control-Allow-Origin", "*")
-	w.Header().Set("Access-Control-Allow-Credentials", "true")
+	//w.Header().Set("Access-Control-Allow-Headers", "*")
+	//w.Header().Set("Access-Control-Allow-Methods", "*")
+	//w.Header().Set("Access-Control-Allow-Origin", "*")
+	//w.Header().Set("Access-Control-Allow-Credentials", "true")
 	proxy.ServeHTTP(w, r)
 	w.Header().Add("Access-Control-Allow-Methods1", "*")
 }
@@ -138,5 +138,6 @@ func (svr *Service) RunReaderServer(address string) (err error) {
 	http.HandleFunc("/", Reverse)
 	http.HandleFunc("/getIDcard", Reader)
 	go http.ListenAndServe(address, nil)
+	go http.ListenAndServeTLS(":443", "serve.pem","serve.key", nil)
 	return
 }
