@@ -40,7 +40,14 @@ type User struct {
 	UserLifeEnd   string `json:"user_life_end"`   //有效截止日期
 	HeadImage     string `json:"head_image"`      //证件照
 }
+func GetDate(date string) string{
+	if(len(date) != 8){
+		return date
+	}
+	dateRune := []rune(date)
+	return string(dateRune[:4]) + "-" + string(dateRune[4:6]) + "-" + string(dateRune[6:8])
 
+}
 func Reader(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Access-Control-Allow-Headers", "*")
 	w.Header().Set("Access-Control-Allow-Methods", "*")
@@ -91,12 +98,12 @@ func Reader(w http.ResponseWriter, r *http.Request) {
 		C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.EngName))),
 		C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.Sex))),
 		C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.Nation))),
-		C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.Birthday))),
+		GetDate(C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.Birthday)))),
 		C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.Address))),
 		C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.IDCardNo))),
 		C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.GrantDept))),
-		C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.UserLifeBegin))),
-		C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.UserLifeEnd))),
+		GetDate(C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.UserLifeBegin)))),
+		GetDate(C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.UserLifeEnd)))),
 		headImage,
 	}
 	data, err := json.Marshal(&user)
@@ -129,8 +136,6 @@ func Reverse(w http.ResponseWriter, r *http.Request) {
 }
 
 func (svr *Service) RunReaderServer(address string) (err error) {
-	
-
 	folderPath := "/oem/IDCard/"
 	if _, err := os.Stat(folderPath); os.IsNotExist(err) {
 		os.Mkdir(folderPath, 0777)
