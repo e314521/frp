@@ -22,6 +22,7 @@ import (
 	"unsafe"
 	"net/http/httputil"
 	"net/url"
+	"github.com/guanguans/id-validator"
 )
 
 var mu sync.RWMutex
@@ -39,6 +40,7 @@ type User struct {
 	UserLifeBegin string `json:"user_life_begin"` //有效开始日期
 	UserLifeEnd   string `json:"user_life_end"`   //有效截止日期
 	HeadImage     string `json:"head_image"`      //证件照
+	BirthPlace    string `json:"birth_place"`      //籍贯
 }
 func GetDate(date string) string{
 	if(len(date) != 8){
@@ -90,7 +92,6 @@ func Reader(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte(`{"success":false, "msg":"当前只支持大陆身份证", "data":{}}`))
 		return
 	}
-
 	headImage := base64.StdEncoding.EncodeToString(bmp)
 	user := User{
 		C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.CardType))),
@@ -105,6 +106,11 @@ func Reader(w http.ResponseWriter, r *http.Request) {
 		GetDate(C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.UserLifeBegin)))),
 		GetDate(C.GoString((*C.char)(unsafe.Pointer(&stIDCardDataUTF8.UserLifeEnd)))),
 		headImage,
+		"",
+	}
+	IdInfo, err :=idvalidator.GetInfo(user.IDCardNo, false)
+	if(err == nil){
+		user.BirthPlace = IdInfo.AddressTree[0] + IdInfo.AddressTree[1]
 	}
 	data, err := json.Marshal(&user)
 	if err != nil {
